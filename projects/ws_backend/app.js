@@ -7,15 +7,6 @@ const ELEVENLABS_API_KEY = "";  // Your ElevenLabs API KEY
 const server = http.createServer();
 const wss = new ws.WebSocketServer({ server })
 
-function sendAudioToInfobip(ws, buff) {
-    const expectedBytes = 640; // sample_rate * packetization_time * bytes_per_sample = 640 [bytes]
-    const chunks = buff.length / expectedBytes;
-    for (let i = 0; i < chunks; ++ i) {
-        const chunk = buff.subarray(i * expectedBytes, Math.min((i + 1) * expectedBytes, buff.length));
-        ws.send(chunk);
-    }
-}
-
 async function handleWebsocket(infobipWs) {
     let elevenLabsWs = null;
 
@@ -59,8 +50,9 @@ async function handleWebsocket(infobipWs) {
                             break;
                         case "audio":
                             const buff = Buffer.from(message.audio_event.audio_base_64, "base64");
-                            sendAudioToInfobip(infobipWs, buff);
+                            infobipWs.send(buff);
                             break;
+                        case "agent_response_correction":
                         case "interruption":
                             infobipWs.send(JSON.stringify({
                                 action: "clear"
