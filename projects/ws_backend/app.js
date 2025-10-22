@@ -125,7 +125,7 @@ async function handleWebsocket(infobipWs) {
 }
 
 wss.on('connection', ws => handleWebsocket(ws));
-
-server.listen(3500, () => {
+const PORT = process.env.PORT || 3500
+server.listen(PORT, () => {
     console.log(`WS Server is running on port ${server.address().port}`);
 });
